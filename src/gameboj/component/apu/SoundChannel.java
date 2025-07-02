@@ -4,17 +4,21 @@ import gameboj.Register;
 import gameboj.RegisterFile;
 import gameboj.component.Component;
 
+import static gameboj.AddressMap.REGS_CH_END;
+import static gameboj.AddressMap.REGS_CH_START;
 import static gameboj.bits.Bits.*;
-import static gameboj.AddressMap.*;
 import static gameboj.component.apu.Apu.ChannelType;
 
 public abstract class SoundChannel implements Component {
-    private final static int[][] CHANNEL_MASKS = new int[][] {
-            {0x80, 0x3f, 0x00, 0xff, 0xbf},
-            {0xff, 0x3f, 0x00, 0xff, 0xbf},
-            {0x7f, 0xff, 0x9f, 0xff, 0xbf},
-            {0xff, 0xff, 0x00, 0x00, 0xbf},
+    private final static int[][] CHANNEL_MASKS = new int[][]{
+            {0x80, 0x3F, 0x00, 0xFF, 0xBF},
+            {0xFF, 0x3F, 0x00, 0xFF, 0xBF},
+            {0x7F, 0xFF, 0x9F, 0xFF, 0xBF},
+            {0xFF, 0xFF, 0x00, 0x00, 0xBF},
     };
+
+    private final static int WAVE_FULL_LENGTH = 256;
+    private final static int DEFAULT_FULL_LENGTH = 64;
 
     protected enum Reg implements Register {
         NR0, NR1, NR2, NR3, NR4
@@ -35,8 +39,7 @@ public abstract class SoundChannel implements Component {
         regEndAddress = REGS_CH_END[type.ordinal()];
         channelMasks = CHANNEL_MASKS[type.ordinal()];
 
-        if (type == ChannelType.WAVE) length = new LengthCounter(256);
-        else length = new LengthCounter(64);
+        length = new LengthCounter(type == ChannelType.WAVE ? WAVE_FULL_LENGTH : DEFAULT_FULL_LENGTH);
     }
 
     public abstract int clock();
@@ -45,7 +48,8 @@ public abstract class SoundChannel implements Component {
 
     protected abstract void start();
 
-    @Override public int read(int address) {
+    @Override
+    public int read(int address) {
         if (regStartAddress <= address && address < regEndAddress) {
             int idx = address - regStartAddress;
             return regFile.get(Reg.values()[idx]) | channelMasks[idx];
@@ -58,14 +62,18 @@ public abstract class SoundChannel implements Component {
             int idx = address - regStartAddress;
             int value = regFile.get(Reg.values()[idx]);
 
-            if (unmasked) { return value; }
-            else { return value | channelMasks[idx]; }
+            if (unmasked) {
+                return value;
+            } else {
+                return value | channelMasks[idx];
+            }
 
         }
         return NO_DATA;
     }
 
-    @Override public void write(int address, int data) {
+    @Override
+    public void write(int address, int data) {
         if (regStartAddress <= address && address < regEndAddress) {
             Reg reg = Reg.values()[address - regStartAddress];
             regFile.set(reg, data);

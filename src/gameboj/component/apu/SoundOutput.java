@@ -1,23 +1,12 @@
 package gameboj.component.apu;
 
 public interface SoundOutput {
+    record AudioSample(byte left, byte right) {
+    }
+
     void start();
 
     void stop();
 
-    void play(int left, int right);
-
-    SoundOutput NULL_OUTPUT = new SoundOutput() {
-        @Override
-        public void start() {
-        }
-
-        @Override
-        public void stop() {
-        }
-
-        @Override
-        public void play(int left, int right) {
-        }
-    };
+    void play(AudioSample sample);
 }

@@ -3,8 +3,8 @@ package gameboj.component.apu;
 import static gameboj.bits.Bits.*;
 import static gameboj.component.apu.Apu.ChannelType;
 
-public class Square extends SoundChannel{
-    private final static int[] DUTY_PATTERN = new int[] {
+public class Square extends SoundChannel {
+    private final static int[] DUTY_PATTERN = new int[]{
             0b00000001,
             0b10000001,
             0b10000111,
@@ -26,7 +26,8 @@ public class Square extends SoundChannel{
         this(ChannelType.SQUARE_B);
     }
 
-    @Override public void write(int address, int data) {
+    @Override
+    public void write(int address, int data) {
         if (regStartAddress <= address && address < regEndAddress) {
             Reg reg = Reg.values()[address - regStartAddress];
             super.write(address, data);
@@ -43,7 +44,8 @@ public class Square extends SoundChannel{
         }
     }
 
-    @Override public int clock() {
+    @Override
+    public int clock() {
         envelope.clock();
         if (!(updateLength() && dacEnabled))
             return 0;
@@ -59,19 +61,23 @@ public class Square extends SoundChannel{
         return duty * envelope.getVolume();
     }
 
-    @Override protected void trigger() {
+    @Override
+    protected void trigger() {
         freqDiv = 1;
         wavePosition = 0;
         envelope.trigger();
     }
 
-    @Override protected void start() {
+    @Override
+    protected void start() {
         wavePosition = 0;
         length.start();
         envelope.start();
     }
 
-    private int dutyPattern() { return regFile.get(Reg.NR1) >> 6; }
+    private int dutyPattern() {
+        return regFile.get(Reg.NR1) >> 6;
+    }
 
     int getFrequency() {
         int lsb = regFile.get(Reg.NR3);

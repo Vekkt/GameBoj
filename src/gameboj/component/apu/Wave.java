@@ -1,7 +1,7 @@
 package gameboj.component.apu;
 
-import gameboj.component.memory.Ram;
 import gameboj.component.apu.Apu.ChannelType;
+import gameboj.component.memory.Ram;
 
 import static gameboj.AddressMap.*;
 import static gameboj.bits.Bits.*;
@@ -11,7 +11,7 @@ public final class Wave extends SoundChannel {
 
     private boolean triggered;
     private int sinceLastRead;
-    private int lastReadAddr;
+    private int lastReadAddress;
     private int buffer;
     private int output;
     private int wavePosition;
@@ -29,7 +29,7 @@ public final class Wave extends SoundChannel {
             if (!isEnabled()) {
                 return waveRAM.read(address - REG_WAVE_TAB_START);
             } else if (sinceLastRead < 2) {
-                return waveRAM.read(lastReadAddr - REG_WAVE_TAB_START);
+                return waveRAM.read(lastReadAddress - REG_WAVE_TAB_START);
             } else {
                 return 0xFF;
             }
@@ -42,9 +42,8 @@ public final class Wave extends SoundChannel {
         if (REG_WAVE_TAB_START <= address && address < REG_WAVE_TAB_END) {
             if (!isEnabled()) { // obscure behavior
                 waveRAM.write(address - REG_WAVE_TAB_START, data);
-            }
-            else if (sinceLastRead < 2) // obscure behavior
-                waveRAM.write(lastReadAddr - REG_WAVE_TAB_START, data);
+            } else if (sinceLastRead < 2) // obscure behavior
+                waveRAM.write(lastReadAddress - REG_WAVE_TAB_START, data);
         } else if (regStartAddress <= address && address < regEndAddress) {
             Reg reg = Reg.values()[address - regStartAddress];
             switch (reg) {
@@ -108,8 +107,8 @@ public final class Wave extends SoundChannel {
 
     private int readWave() {
         sinceLastRead = 0;
-        lastReadAddr = REG_WAVE_TAB_START + wavePosition / 2;
-        buffer = waveRAM.read(lastReadAddr - REG_WAVE_TAB_START);
+        lastReadAddress = REG_WAVE_TAB_START + wavePosition / 2;
+        buffer = waveRAM.read(lastReadAddress - REG_WAVE_TAB_START);
         int b = buffer;
         if (wavePosition % 2 == 0) b = extract(b, 4, 4);
         else b = clip(4, b);
@@ -125,10 +124,5 @@ public final class Wave extends SoundChannel {
 
     private int volume() {
         return extract(regFile.get(Reg.NR2), 5, 2);
-    }
-
-    @Override
-    public String toString() {
-        return String.format("Wave[buffer=%d,output=%d,pos=%d,freq=%s]", buffer, output, wavePosition, freqDiv);
     }
 }

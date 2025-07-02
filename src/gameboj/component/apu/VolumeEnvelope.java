@@ -19,7 +19,9 @@ public final class VolumeEnvelope {
     private int counter;
     private boolean stopped;
 
-    private boolean isEnabled() { return period > 0; }
+    private boolean isEnabled() {
+        return period > 0;
+    }
 
     void updateEnvelope(int data) {
         this.initialVolume = data >> 4;
@@ -41,9 +43,9 @@ public final class VolumeEnvelope {
     void clock() {
         if (stopped) return;
         if ((volume == MIN_VOLUME && envelopeDirection == Direction.DECR)
-            || (volume == MAX_VOLUME && envelopeDirection == Direction.INCR)) {
-                stopped = true;
-                return;
+                || (volume == MAX_VOLUME && envelopeDirection == Direction.INCR)) {
+            stopped = true;
+            return;
         }
         if (++counter == period * DIVIDER) {
             counter = 0;

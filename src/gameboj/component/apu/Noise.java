@@ -78,5 +78,7 @@ public final class Noise extends SoundChannel {
         return 1 & ~lfsr;
     }
 
-    private boolean widthMode() { return test(regFile.get(Reg.NR3), 3); }
+    private boolean widthMode() {
+        return test(regFile.get(Reg.NR3), 3);
+    }
 }

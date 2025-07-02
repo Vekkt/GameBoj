@@ -18,7 +18,7 @@ public final class Apu implements Component, Clocked {
     }
 
     private final static int[] MASKS = {
-        0x00, 0x00, 0x70,
+            0x00, 0x00, 0x70,
     };
 
     private final RegisterFile<Reg> regFile = new RegisterFile<>(Reg.values());
@@ -30,12 +30,12 @@ public final class Apu implements Component, Clocked {
     private boolean enabled;
 
     public Apu(SoundOutput output) {
-        Sweep sweepChannel    = new Sweep();
+        Sweep sweepChannel = new Sweep();
         Square squareBChannel = new Square();
-        Wave waveChannel      = new Wave();
-        Noise noiseChannel    = new Noise();
+        Wave waveChannel = new Wave();
+        Noise noiseChannel = new Noise();
 
-        this.channels = new SoundChannel[] {
+        this.channels = new SoundChannel[]{
                 sweepChannel,
                 squareBChannel,
                 waveChannel,
@@ -53,8 +53,8 @@ public final class Apu implements Component, Clocked {
 
         /* Needs to be optimized */
         int outputSelect = regFile.get(Reg.NR51);
-        int left = 0;
-        int right = 0;
+        byte left = 0;
+        byte right = 0;
 
         for (int i = 0; i < channels.length; i++) {
             if (test(outputSelect, i + 4)) left += amplitudes[i];
@@ -68,10 +68,11 @@ public final class Apu implements Component, Clocked {
         right *= clip(3, volumes);
 
         if (output != null)
-            output.play((byte) left, (byte) right);
+            output.play(new SoundOutput.AudioSample(left, right));
     }
 
-    @Override public int read(int address) {
+    @Override
+    public int read(int address) {
         return read(address, false);
     }
 
@@ -107,7 +108,8 @@ public final class Apu implements Component, Clocked {
         return NO_DATA;
     }
 
-    @Override public void write(int address, int data) {
+    @Override
+    public void write(int address, int data) {
         if (REGS_CH1_START <= address && address < REGS_CH4_END) {
             channels[(address - REGS_CH1_START) / 5].write(address, data);
         } else if (REG_WAVE_TAB_START <= address && address < REG_WAVE_TAB_END) {

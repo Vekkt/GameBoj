@@ -16,7 +16,9 @@ public class LengthCounter {
         this.fullLength = fullLength;
     }
 
-    public void start() { counter = DIVIDER / 2; }
+    public void start() {
+        counter = DIVIDER / 2;
+    }
 
     public void clock() {
         if (++counter == DIVIDER) {
@@ -58,7 +60,11 @@ public class LengthCounter {
         this.length = (length == 0) ? fullLength : length;
     }
 
-    public int length() { return length; }
+    public int length() {
+        return length;
+    }
 
-    public boolean isEnabled() { return enabled; }
+    public boolean isEnabled() {
+        return enabled;
+    }
 }
