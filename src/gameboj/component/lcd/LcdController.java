@@ -32,6 +32,11 @@ public final class LcdController implements Component, Clocked {
     private boolean firstLineDrawn;
     private int winY;
 
+    private final static int MAX_SPRITES_LINE = 10;
+    private final static int NUM_SPRITES = 40;
+    private final static int SPRITE_SIZE = 8;
+    private final static int SPRITE_SIZE_LARGE = 16;
+
     public final static int LCD_WIDTH = 160;
     public final static int LCD_HEIGHT = 144;
     private final static int CANVAS_SIZE = 256;
@@ -134,7 +139,7 @@ public final class LcdController implements Component, Clocked {
                 case DMA: {
                     regFile.set(Reg.DMA, data);
                     copyDestination = AddressMap.OAM_START;
-                    copySource = data << 8;
+                    copySource = data << SPRITE_SIZE;
                 }
                 default: {
                     regFile.set(reg, data);
@@ -258,18 +263,18 @@ public final class LcdController implements Component, Clocked {
 
         for (int number : sprites) {
             LcdImageLine.Builder singleSpriteLineBuilder = new LcdImageLine.Builder(LCD_WIDTH);
-            int spriteYLoc = OAMController.read(AddressMap.OAM_START + number * 4) - 16;
-            int spriteXLoc = OAMController.read(AddressMap.OAM_START + number * 4 + 1) - 8;
+            int spriteYLoc = OAMController.read(AddressMap.OAM_START + number * 4) - SPRITE_SIZE_LARGE;
+            int spriteXLoc = OAMController.read(AddressMap.OAM_START + number * 4 + 1) - SPRITE_SIZE;
             int spriteIndex = OAMController.read(AddressMap.OAM_START + number * 4 + 2);
             int infoByte = OAMController.read(AddressMap.OAM_START + number * 4 + 3);
-            int spriteSize = regFile.testBit(Reg.LCDC, LCDCB.OBJ_SIZE) ? 16 : 8;
+            int spriteSize = regFile.testBit(Reg.LCDC, LCDCB.OBJ_SIZE) ? SPRITE_SIZE_LARGE : SPRITE_SIZE;
             int spritePal = Bits.test(infoByte, 4) ? regFile.get(Reg.OBP1) : regFile.get(Reg.OBP0);
 
             int spriteRow = row - spriteYLoc;
             if (Bits.test(infoByte, 6))
                 spriteRow = spriteSize - spriteRow - 1;
 
-            if (spriteSize == 16)
+            if (spriteSize == SPRITE_SIZE_LARGE)
                 spriteIndex = Bits.set(spriteIndex, 0, false);
 
             int[] sprite = getVectors(imageType.SPRITE, spriteIndex, spriteRow);
@@ -289,7 +294,7 @@ public final class LcdController implements Component, Clocked {
     }
 
     private int getTileIndex(imageType type, int row, int col) {
-        int tileNumber = 32 * (row / 8) + col;
+        int tileNumber = 32 * (row / SPRITE_SIZE) + col;
 
         LCDCB addressArea = type == imageType.BG ? LCDCB.BG_AREA : LCDCB.WIN_AREA;
 
@@ -303,9 +308,9 @@ public final class LcdController implements Component, Clocked {
         int tileAddress = regFile.testBit(
                 Reg.LCDC, LCDCB.TILE_SOURCE) || type == imageType.SPRITE
                 ? AddressMap.TILE_SOURCE[1] + index * 0x10
-                : AddressMap.TILE_SOURCE[0] + (Bits.clip(8, index + 0x80)) * 0x10;
+                : AddressMap.TILE_SOURCE[0] + (Bits.clip(SPRITE_SIZE, index + 0x80)) * 0x10;
 
-        int size = type != imageType.SPRITE || !regFile.testBit(Reg.LCDC, LCDCB.OBJ_SIZE) ? 8 : 16;
+        int size = type != imageType.SPRITE || !regFile.testBit(Reg.LCDC, LCDCB.OBJ_SIZE) ? SPRITE_SIZE : SPRITE_SIZE_LARGE;
 
         int lsb = Bits.reverse8(VRAMController.read(tileAddress + 2 * (row % size)));
         int msb = Bits.reverse8(VRAMController.read(tileAddress + 2 * (row % size) + 1));
@@ -327,17 +332,17 @@ public final class LcdController implements Component, Clocked {
     }
 
     private int[] spritesIntersectingLine(int row) {
-        Integer[] sprites = new Integer[10];
+        Integer[] sprites = new Integer[MAX_SPRITES_LINE];
         int spriteNumber = 0;
         int count = 0;
 
-        while (count < 10 && spriteNumber < 40) {
-            int tileYLoc = OAMController.read(AddressMap.OAM_START + spriteNumber * 4) - 16;
-            int tileXLoc = OAMController.read(AddressMap.OAM_START + spriteNumber * 4 + 1) - 8;
-            int spriteSize = regFile.testBit(Reg.LCDC, LCDCB.OBJ_SIZE) ? 16 : 8;
+        while (count < MAX_SPRITES_LINE && spriteNumber < NUM_SPRITES) {
+            int tileYLoc = OAMController.read(AddressMap.OAM_START + spriteNumber * 4) - SPRITE_SIZE_LARGE;
+            int tileXLoc = OAMController.read(AddressMap.OAM_START + spriteNumber * 4 + 1) - SPRITE_SIZE;
+            int spriteSize = regFile.testBit(Reg.LCDC, LCDCB.OBJ_SIZE) ? SPRITE_SIZE_LARGE : SPRITE_SIZE;
 
             if (inBounds(row, tileYLoc, tileYLoc + spriteSize)) {
-                sprites[count] = (tileXLoc << 8) + spriteNumber;
+                sprites[count] = (tileXLoc << SPRITE_SIZE) + spriteNumber;
                 count++;
             }
             spriteNumber++;
@@ -347,7 +352,7 @@ public final class LcdController implements Component, Clocked {
 
         int[] spritesIndex = new int[count];
         for (int i = 0; i < count; i++)
-            spritesIndex[i] = Bits.clip(8, sprites[count - 1 - i]);
+            spritesIndex[i] = Bits.clip(SPRITE_SIZE, sprites[count - 1 - i]);
 
         return spritesIndex;
     }

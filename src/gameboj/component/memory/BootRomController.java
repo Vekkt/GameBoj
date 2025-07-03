@@ -7,8 +7,7 @@ import gameboj.component.cartridge.Cartridge;
 /**
  * Represents a boot rom controller
  *
- * @author Francois BURGUET 288683
- * @author Gaietan Renault 283350
+ * @author Francois BURGUET
  */
 public final class BootRomController implements Component {
 

@@ -7,8 +7,7 @@ import java.util.Arrays;
 /**
  * Represents a physical rom
  *
- * @author Francois BURGUET 288683
- * @author Gaietan Renault 283350
+ * @author Francois BURGUET
  */
 public final class Rom {
 

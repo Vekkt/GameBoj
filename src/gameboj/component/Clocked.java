@@ -3,8 +3,7 @@ package gameboj.component;
 /**
  * Represents a clocked object
  *
- * @author Francois BURGUET 288683
- * @author Gaietan Renault 283350
+ * @author Francois BURGUET
  */
 
 public interface Clocked {

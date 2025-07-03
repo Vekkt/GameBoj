@@ -11,8 +11,7 @@ import java.util.Objects;
 /**
  * Implements the keyboard of the GameBoy
  *
- * @author Francois BURGUET 288683
- * @author Gaietan Renault 283350
+ * @author Francois BURGUET
  */
 
 public class Joypad implements Component {

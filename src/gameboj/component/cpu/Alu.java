@@ -7,8 +7,7 @@ import gameboj.bits.Bits;
 /**
  * Implements the arithmetic and logical part of the CPU
  *
- * @author Francois BURGUET 288683
- * @author Gaietan Renault 283350
+ * @author Francois BURGUET
  */
 
 public final class Alu {

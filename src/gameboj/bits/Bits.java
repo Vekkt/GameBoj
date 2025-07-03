@@ -41,7 +41,7 @@ public final class Bits {
      * @throws IndexOutOfBoundsException if index is not between 0 and 31 (included)
      */
     public static int mask(int index) {
-        if (0 > index || index >= 32) {
+        if (0 > index || index >= Integer.SIZE) {
             throw new IndexOutOfBoundsException();
         }
         return 1 << index;
@@ -57,7 +57,7 @@ public final class Bits {
      * @throws IndexOutOfBoundsException if <code>index</code> is not between 0 and 31 (included)
      */
     public static boolean test(int bits, int index) {
-        if (0 > index || index >= 32) {
+        if (0 > index || index >= Integer.SIZE) {
             throw new IndexOutOfBoundsException();
         }
         return (bits & mask(index)) != 0;
@@ -87,7 +87,7 @@ public final class Bits {
      * @throws IndexOutOfBoundsException if index is not between 0 and 31 (included)
      */
     public static int set(int bits, int index, boolean newValue) {
-        if (0 > index || index >= 32) {
+        if (0 > index || index >= Integer.SIZE) {
             throw new IndexOutOfBoundsException();
         }
         return bits ^ (-(newValue ? 1 : 0) ^ bits) & mask(index);
@@ -102,8 +102,8 @@ public final class Bits {
      * @throws IllegalArgumentException if the size is not between 0 and 31 (included)
      */
     public static int clip(int size, int bits) {
-        Preconditions.checkArgument(0 <= size && size <= 32);
-        return size == 32 ? bits : bits & (mask(size) - 1);
+        Preconditions.checkArgument(0 <= size && size <= Integer.SIZE);
+        return size == Integer.SIZE ? bits : bits & (mask(size) - 1);
     }
 
     /**
@@ -118,7 +118,7 @@ public final class Bits {
      */
     public static int extract(int bits, int start, int size) {
         Preconditions.checkArgument(0 <= start && 0 <= size);
-        Preconditions.checkArgument(0 <= start + size && start + size < 32);
+        Preconditions.checkArgument(0 <= start + size && start + size < Integer.SIZE);
         return Bits.clip(size, bits >> start);
     }
 
@@ -135,7 +135,7 @@ public final class Bits {
      * @throws IllegalArgumentException if the size is not between 0 and 31 (included)
      */
     public static int rotate(int size, int bits, int distance) {
-        Preconditions.checkArgument(0 < size && size <= 32);
+        Preconditions.checkArgument(0 < size && size <= Integer.SIZE);
         int d = Math.floorMod(distance, size);
         return clip(size, bits << d | bits >>> (size - d));
     }
@@ -190,6 +190,6 @@ public final class Bits {
     public static int make16(int highB, int lowB) {
         Preconditions.checkBits8(highB);
         Preconditions.checkBits8(lowB);
-        return (clip(8, highB) << 8) | clip(8, lowB);
+        return (clip(Byte.SIZE, highB) << Byte.SIZE) | clip(Byte.SIZE, lowB);
     }
 }

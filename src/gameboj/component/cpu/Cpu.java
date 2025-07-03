@@ -14,8 +14,7 @@ import static gameboj.AddressMap.REGS_START;
 /**
  * Implements the arithmetic and logical part of the CPU
  *
- * @author Francois BURGUET 288683
- * @author Gaietan Renault 283350
+ * @author Francois BURGUET
  */
 
 public final class Cpu implements Component, Clocked {
@@ -127,8 +126,7 @@ public final class Cpu implements Component, Clocked {
         int nextPC = PC + opCode.totalBytes;
 
         switch (opCode.family) {
-            case NOP -> {
-            }
+            case NOP -> {}
 
             // Load
             case LD_R8_HLR -> {
@@ -138,7 +136,7 @@ public final class Cpu implements Component, Clocked {
             case LD_A_HLRU -> {
                 int s = extractHlIncrement(opCode);
                 regFile.set(Reg.A, read8AtHl());
-                setReg16(Reg16.HL, Bits.clip(16, reg16(Reg16.HL) + s));
+                setReg16(Reg16.HL, Bits.clip(Short.SIZE, reg16(Reg16.HL) + s));
             }
             case LD_A_N8R -> {
                 int N8 = read8AfterOpcode();
@@ -186,7 +184,7 @@ public final class Cpu implements Component, Clocked {
                 int s = extractHlIncrement(opCode);
                 int val = regFile.get(Reg.A);
                 write8AtHl(val);
-                setReg16(Reg16.HL, Bits.clip(16, reg16(Reg16.HL) + s));
+                setReg16(Reg16.HL, Bits.clip(Short.SIZE, reg16(Reg16.HL) + s));
             }
             case LD_N8R_A -> {
                 int N8 = read8AfterOpcode();
@@ -253,7 +251,7 @@ public final class Cpu implements Component, Clocked {
             }
             case INC_HLR -> {
                 int vf = Alu.add(read8AtHl(), 1);
-                write8(reg16(Reg16.HL), Bits.clip(8, Alu.unpackValue(vf)));
+                write8(reg16(Reg16.HL), Bits.clip(Byte.SIZE, Alu.unpackValue(vf)));
                 combineAluFlags(vf, FlagSrc.ALU, FlagSrc.V0, FlagSrc.ALU, FlagSrc.CPU);
             }
             case INC_R16SP -> {
@@ -273,7 +271,7 @@ public final class Cpu implements Component, Clocked {
                 combineAluFlags(vf, FlagSrc.CPU, FlagSrc.V0, FlagSrc.ALU, FlagSrc.ALU);
             }
             case LD_HLSP_S8 -> {
-                int S8 = Bits.clip(16, Bits.signExtend8(read8AfterOpcode()));
+                int S8 = Bits.clip(Short.SIZE, Bits.signExtend8(read8AfterOpcode()));
                 int vf = Alu.add16L(SP, S8);
                 combineAluFlags(vf, FlagSrc.V0, FlagSrc.V0, FlagSrc.ALU, FlagSrc.ALU);
 
@@ -310,7 +308,7 @@ public final class Cpu implements Component, Clocked {
             }
             case DEC_HLR -> {
                 int vf = Alu.sub(read8AtHl(), 1);
-                write8AtHl(Bits.clip(8, Alu.unpackValue(vf)));
+                write8AtHl(Bits.clip(Byte.SIZE, Alu.unpackValue(vf)));
                 combineAluFlags(vf, FlagSrc.ALU, FlagSrc.V1, FlagSrc.ALU, FlagSrc.CPU);
             }
             case CP_A_R8 -> {
@@ -330,9 +328,9 @@ public final class Cpu implements Component, Clocked {
             case DEC_R16SP -> {
                 Reg16 R16 = extractReg16(opCode);
                 if (R16 == Reg16.AF)
-                    SP = Bits.clip(16, SP - 1);
+                    SP = Bits.clip(Short.SIZE, SP - 1);
                 else
-                    setReg16(R16, Bits.clip(16, reg16(R16) - 1));
+                    setReg16(R16, Bits.clip(Short.SIZE, reg16(R16) - 1));
             }
 
 
@@ -518,13 +516,13 @@ public final class Cpu implements Component, Clocked {
             }
             case JR_E8 -> {
                 int E8 = Bits.signExtend8(read8AfterOpcode());
-                nextPC = Bits.clip(16, E8 + nextPC);
+                nextPC = Bits.clip(Short.SIZE, E8 + nextPC);
             }
             case JR_CC_E8 -> {
                 int E8 = Bits.signExtend8(read8AfterOpcode());
                 boolean cc = extractCondition(opCode);
                 if (cc) {
-                    nextPC = Bits.clip(16, nextPC + E8);
+                    nextPC = Bits.clip(Short.SIZE, nextPC + E8);
                     nextNonIdleCycle += opCode.additionalCycles;
                 }
             }
@@ -589,23 +587,23 @@ public final class Cpu implements Component, Clocked {
     // Bus access method
 
     private int read8(int address) {
-        return Bits.clip(8, bus.read(address));
+        return Bits.clip(Byte.SIZE, bus.read(address));
     }
 
     private int read8AtHl() {
-        return Bits.clip(8, bus.read(reg16(Reg16.HL)));
+        return Bits.clip(Byte.SIZE, bus.read(reg16(Reg16.HL)));
     }
 
     private int read8AfterOpcode() {
-        return Bits.clip(8, bus.read(Bits.clip(16, PC + 1)));
+        return Bits.clip(Byte.SIZE, bus.read(Bits.clip(Short.SIZE, PC + 1)));
     }
 
     private int read16(int address) {
-        return Bits.make16(bus.read(Bits.clip(16, address + 1)), bus.read(Bits.clip(16, address)));
+        return Bits.make16(bus.read(Bits.clip(Short.SIZE, address + 1)), bus.read(Bits.clip(Short.SIZE, address)));
     }
 
     private int read16AfterOpcode() {
-        return read16(Bits.clip(16, PC + 1));
+        return read16(Bits.clip(Short.SIZE, PC + 1));
     }
 
     private void write8(int address, int v) {
@@ -613,8 +611,8 @@ public final class Cpu implements Component, Clocked {
     }
 
     private void write16(int address, int v) {
-        bus.write(address, Bits.clip(8, v));
-        bus.write(Bits.clip(16, address + 1), Bits.extract(v, 8, 8));
+        bus.write(address, Bits.clip(Byte.SIZE, v));
+        bus.write(Bits.clip(Short.SIZE, address + 1), Bits.extract(v, Byte.SIZE, Byte.SIZE));
     }
 
     private void write8AtHl(int v) {
@@ -622,13 +620,13 @@ public final class Cpu implements Component, Clocked {
     }
 
     private void push16(int v) {
-        SP = Bits.clip(16, SP - 2);
+        SP = Bits.clip(Short.SIZE, SP - 2);
         write16(SP, v);
     }
 
     private int pop16() {
         int val = read16(SP);
-        SP = Bits.clip(16, SP + 2);
+        SP = Bits.clip(Short.SIZE, SP + 2);
         return val;
     }
 
@@ -646,8 +644,8 @@ public final class Cpu implements Component, Clocked {
 
     private void setReg16(Reg16 r, int newV) {
         Preconditions.checkBits16(newV);
-        int lowB = Bits.clip(8, newV);
-        int highB = Bits.extract(newV, 8, 8);
+        int lowB = Bits.clip(Byte.SIZE, newV);
+        int highB = Bits.extract(newV, Byte.SIZE, Byte.SIZE);
 
         switch (r) {
             case AF -> {
@@ -709,7 +707,7 @@ public final class Cpu implements Component, Clocked {
 
     private void setRegFromAlu(Reg r, int vf) {
         int val = Alu.unpackValue(vf);
-        regFile.set(r, Bits.clip(8, val));
+        regFile.set(r, Bits.clip(Byte.SIZE, val));
     }
 
     private void setFlags(int vf) {
@@ -725,7 +723,7 @@ public final class Cpu implements Component, Clocked {
 
     private void write8AtHlAndSetFlags(int vf) {
         int val = Alu.unpackValue(vf);
-        write8(reg16(Reg16.HL), Bits.clip(8, val));
+        write8(reg16(Reg16.HL), Bits.clip(Byte.SIZE, val));
         setFlags(vf);
     }
 

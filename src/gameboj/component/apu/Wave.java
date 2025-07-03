@@ -8,7 +8,6 @@ import static gameboj.bits.Bits.*;
 
 public final class Wave extends SoundChannel {
     private final Ram waveRAM;
-
     private boolean triggered;
     private int sinceLastRead;
     private int lastReadAddress;

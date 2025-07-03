@@ -5,8 +5,7 @@ import gameboj.Bus;
 /**
  * Represents a physical component
  *
- * @author Francois BURGUET 288683
- * @author Gaietan Renault 283350
+ * @author Francois BURGUET
  */
 public interface Component {
 

@@ -15,8 +15,7 @@ import static gameboj.bits.Bits.test;
 /**
  * Represents a GB timer
  *
- * @author Francois BURGUET 288683
- * @author Gaietan Renault 283350
+ * @author Francois BURGUET
  */
 public final class Timer implements Component, Clocked {
 
@@ -45,7 +44,7 @@ public final class Timer implements Component, Clocked {
 
     @Override
     public void cycle(long cycle) {
-        update(regName.DIV, clip(16, DIV + 4));
+        update(regName.DIV, clip(Short.SIZE, DIV + 4));
     }
 
     /**
@@ -60,7 +59,7 @@ public final class Timer implements Component, Clocked {
     public int read(int address) {
         checkBits16(address);
         return switch (address) {
-            case AddressMap.REG_DIV -> Bits.extract(DIV, 8, 8);
+            case AddressMap.REG_DIV -> Bits.extract(DIV, Byte.SIZE, Byte.SIZE);
             case AddressMap.REG_TIMA -> TIMA;
             case AddressMap.REG_TMA -> TMA;
             case AddressMap.REG_TAC -> TAC;

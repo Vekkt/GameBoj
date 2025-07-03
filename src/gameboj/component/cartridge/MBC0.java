@@ -7,10 +7,10 @@ import gameboj.component.memory.Rom;
 /**
  * Represents a Memory Boot Controller of type 0
  *
- * @author Francois BURGUET 288683
- * @author Gaietan Renault 283350
+ * @author Francois BURGUET
  */
 public final class MBC0 implements Component {
+    private final static int ROM_SIZE = 0x8000;
 
     private final Rom rom;
     private final String romName;
@@ -29,7 +29,7 @@ public final class MBC0 implements Component {
         if (rom == null) {
             throw new NullPointerException();
         }
-        Preconditions.checkArgument(rom.size() == 0x8000);
+        Preconditions.checkArgument(rom.size() == ROM_SIZE);
         this.rom = rom;
         this.romName = romName;
     }
@@ -45,7 +45,7 @@ public final class MBC0 implements Component {
     @Override
     public int read(int address) {
         Preconditions.checkBits16(address);
-        return 0 <= address && address < 0x8000 ? rom.read(address) : NO_DATA;
+        return 0 <= address && address < ROM_SIZE ? rom.read(address) : NO_DATA;
     }
 
     /**

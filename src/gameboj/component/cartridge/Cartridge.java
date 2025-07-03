@@ -13,8 +13,7 @@ import static gameboj.Preconditions.checkBits8;
 /**
  * Represents a cartridge of type 0
  *
- * @author Francois BURGUET 288683
- * @author Gaietan Renault 283350
+ * @author Francois BURGUET
  */
 public final class Cartridge implements Component {
 
