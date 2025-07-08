@@ -67,8 +67,8 @@ public final class Apu implements Component, Clocked {
         left *= extract(volumes, 4, 3);
         right *= clip(3, volumes);
 
-//        if (output != null)
-//            output.play(new SoundOutput.AudioSample(left, right));
+        if (output != null)
+            output.play(new SoundOutput.AudioSample(left, right));
     }
 
     @Override
