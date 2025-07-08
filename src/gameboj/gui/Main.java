@@ -81,5 +81,4 @@ public class Main extends Application {
     private void keyReleasedHandler(GameBoy gb, KeyEvent event, Scene scene) {
         gb.joypad().keyReleased(buttonMap.getOrDefault(event.getCode(), null));
     }
-
 }

@@ -10,6 +10,7 @@ import gameboj.component.memory.BootRomController;
 import gameboj.component.memory.Ram;
 import gameboj.component.memory.RamController;
 import gameboj.gui.AudioConverter;
+import javafx.scene.image.WritableImage;
 
 import java.util.Objects;
 
@@ -21,6 +22,7 @@ import java.util.Objects;
 
 public final class GameBoy {
 
+    private final Bus bus;
     private final Cartridge rom;
     private final Cpu cpu;
     private final Apu apu;
@@ -42,7 +44,7 @@ public final class GameBoy {
     public GameBoy(Cartridge cartridge) {
         rom = Objects.requireNonNull(cartridge);
 
-        Bus bus = new Bus();
+        bus = new Bus();
         cpu = new Cpu();
         apu = new Apu(new AudioConverter());
         timer = new Timer(cpu);
@@ -60,6 +62,10 @@ public final class GameBoy {
         cpu.attachTo(bus);
         apu.attachTo(bus);
         lcd.attachTo(bus);
+    }
+
+    public Bus getBus() {
+        return this.bus;
     }
 
     public Cartridge getRom() {

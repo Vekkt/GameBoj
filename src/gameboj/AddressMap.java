@@ -18,6 +18,8 @@ public interface AddressMap {
     // Memory-mapped "IO" registers
     int REGS_START = 0xFF00;
     int REG_P1 = 0xFF00;
+    int REG_SB = 0xFF01;
+    int REG_SC = 0xFF02;
     int REG_DIV = 0xFF04;
     int REG_TIMA = 0xFF05;
     int REG_TMA = 0xFF06;
